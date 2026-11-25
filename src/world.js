@@ -227,6 +227,7 @@ export function buildWorld(renderer) {
   const hydro = new THREE.Group(); hydro.userData.id = 'structure.hydro_rack'; hydro.position.set(6, 0, -4.5); interior.add(hydro);
   for (let s = 0; s < 3; s++) {
     hydro.add(mesh(box(8, 0.25, 2.2), M.hullDark, 'structure.hydro_rack.shelf', 0, 0.8 + s * 1.1, 0));
+    hydro.add(mesh(box(7.4, 0.06, 0.14), M.cool, 'structure.hydro_rack.grow_strip', 0, 0.68 + s * 1.1, 0.7));
     for (let p = 0; p < 5; p++) hydro.add(mesh(box(1.2, 0.5, 1.6), M.green, 'structure.hydro_rack.plant', -3.2 + p * 1.6, 1.3 + s * 1.1, 0));
   }
   const irrPipe = mesh(cyl(0.12, 0.12, 8, 8), M.cool, 'structure.hydro_rack.irrigation', 0, 3.4, 0);
@@ -245,6 +246,7 @@ export function buildWorld(renderer) {
   const chapelFloor = mesh(box(16, 0.4, 8), M.grate, 'structure.chapel.floor', 0, 0, 0); chapel.add(chapelFloor);
   const console_ = mesh(box(10, 1.1, 1.2), M.hullDark, 'structure.chapel.console', 0, 0.75, 2.5); chapel.add(console_);
   const consoleGlow = mesh(box(9.4, 0.5, 0.1), M.consoleScreen, 'structure.chapel.console.glow', 0, 1.35, 2.5); chapel.add(consoleGlow);
+  chapel.add(mesh(box(8.8, 0.08, 0.22), M.warm, 'structure.chapel.overhead_strip', 0, 3.85, 0.8));
   const panes = [];
   for (let b = 0; b < 3; b++) {
     const ang = (b - 1) * 0.38; // canted
