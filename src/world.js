@@ -4,17 +4,46 @@
 import * as THREE from 'three';
 import { stateAt, cameraAt, comparisonCamera } from './timeline.js';
 
+// Cached procedural textures (zero external dependencies)
+function makeCanvasTex(size, draw) {
+  const cv = document.createElement('canvas');
+  cv.width = cv.height = size;
+  draw(cv.getContext('2d'), size);
+  const tex = new THREE.CanvasTexture(cv);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  return tex;
+}
+const hullTex = makeCanvasTex(256, (c, s) => {
+  c.fillStyle = '#5a6b7d'; c.fillRect(0, 0, s, s);
+  c.strokeStyle = '#384654'; c.lineWidth = 2;
+  for (let i = 0; i <= s; i += 64) { c.beginPath(); c.moveTo(i, 0); c.lineTo(i, s); c.stroke(); c.beginPath(); c.moveTo(0, i); c.lineTo(s, i); c.stroke(); }
+  c.fillStyle = '#738699';
+  for (let x = 8; x < s; x += 64) for (let y = 8; y < s; y += 64) { c.fillRect(x, y, 3, 3); c.fillRect(x + 48, y + 48, 3, 3); }
+});
+const grateTex = makeCanvasTex(128, (c, s) => {
+  c.fillStyle = '#252a30'; c.fillRect(0, 0, s, s);
+  c.strokeStyle = '#4c545e'; c.lineWidth = 3;
+  for (let i = 0; i <= s; i += 16) { c.beginPath(); c.moveTo(i, 0); c.lineTo(i, s); c.stroke(); c.beginPath(); c.moveTo(0, i); c.lineTo(s, i); c.stroke(); }
+});
+const consoleTex = makeCanvasTex(256, (c, s) => {
+  c.fillStyle = '#09131c'; c.fillRect(0, 0, s, s);
+  c.fillStyle = '#1b5e7a'; c.fillRect(14, 24, 96, 48); c.fillRect(126, 24, 112, 48);
+  c.fillStyle = '#37f2ff'; c.fillRect(22, 34, 62, 6); c.fillRect(22, 46, 40, 4); c.fillRect(136, 36, 84, 5);
+  c.fillStyle = '#ffb45e'; c.fillRect(22, 92, 28, 10); c.fillRect(58, 92, 28, 10);
+});
+
 const M = {
-  hull: new THREE.MeshStandardMaterial({ color: 0x5a6b7d, metalness: 0.75, roughness: 0.55 }),
-  hullDark: new THREE.MeshStandardMaterial({ color: 0x2e3a47, metalness: 0.7, roughness: 0.65 }),
-  rib: new THREE.MeshStandardMaterial({ color: 0x8a4a3a, metalness: 0.4, roughness: 0.7 }), // painted structural ribs
-  panel: new THREE.MeshStandardMaterial({ color: 0x7d8b99, metalness: 0.6, roughness: 0.5 }),
-  glass: new THREE.MeshPhysicalMaterial({ color: 0xbfe3ff, metalness: 0, roughness: 0.08, transmission: 0.55, transparent: true, opacity: 0.45, side: THREE.DoubleSide }),
-  warm: new THREE.MeshStandardMaterial({ color: 0xffc98a, emissive: 0xffb45e, emissiveIntensity: 1.6 }),
-  cool: new THREE.MeshStandardMaterial({ color: 0x9fd8ff, emissive: 0x6fc4ff, emissiveIntensity: 1.2 }),
-  cyan: new THREE.MeshStandardMaterial({ color: 0x37f2ff, emissive: 0x37f2ff, emissiveIntensity: 2.4 }),
-  obsidian: new THREE.MeshStandardMaterial({ color: 0x0a0d12, metalness: 0.3, roughness: 0.35, flatShading: true }),
-  grate: new THREE.MeshStandardMaterial({ color: 0x3a3f45, metalness: 0.8, roughness: 0.8 }),
+  hull: new THREE.MeshStandardMaterial({ color: 0x6a7c8f, map: hullTex, metalness: 0.78, roughness: 0.48 }),
+  hullDark: new THREE.MeshStandardMaterial({ color: 0x2b3642, metalness: 0.72, roughness: 0.62 }),
+  rib: new THREE.MeshStandardMaterial({ color: 0x944e3d, metalness: 0.42, roughness: 0.65 }), // painted structural ribs
+  panel: new THREE.MeshStandardMaterial({ color: 0x8594a3, map: hullTex, metalness: 0.65, roughness: 0.45 }),
+  glass: new THREE.MeshPhysicalMaterial({ color: 0xbfe3ff, metalness: 0, roughness: 0.06, transmission: 0.58, transparent: true, opacity: 0.42, side: THREE.DoubleSide }),
+  warm: new THREE.MeshStandardMaterial({ color: 0xffc98a, emissive: 0xffb45e, emissiveIntensity: 1.8 }),
+  cool: new THREE.MeshStandardMaterial({ color: 0x9fd8ff, emissive: 0x6fc4ff, emissiveIntensity: 1.3 }),
+  cyan: new THREE.MeshStandardMaterial({ color: 0x37f2ff, emissive: 0x37f2ff, emissiveIntensity: 2.6 }),
+  obsidian: new THREE.MeshStandardMaterial({ color: 0x080b10, metalness: 0.45, roughness: 0.25, flatShading: true }),
+  grate: new THREE.MeshStandardMaterial({ color: 0x434950, map: grateTex, metalness: 0.82, roughness: 0.72 }),
+  consoleScreen: new THREE.MeshStandardMaterial({ color: 0x102838, map: consoleTex, emissive: 0x1b6d8a, emissiveMap: consoleTex, emissiveIntensity: 0.9, roughness: 0.3 }),
   green: new THREE.MeshStandardMaterial({ color: 0x4a8a4a, roughness: 0.9 }),
   pale: new THREE.MeshStandardMaterial({ color: 0xe8e4da, roughness: 0.8 }),
   suit: new THREE.MeshStandardMaterial({ color: 0x6b7a8a, roughness: 0.85 }),
