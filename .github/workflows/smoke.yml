@@ -1,0 +1,17 @@
+name: Chromium smoke
+on: [push, pull_request]
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: node --test tests/timeline.test.mjs
+      - run: node scripts/build.mjs
+      - name: Serve + smoke (headless Chromium via npx playwright)
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm i -D playwright-core >/dev/null 2>&1 || true
+          npx playwright install chromium --with-deps 2>/dev/null || npx playwright install chromium
+          node scripts/smoke.mjs

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Meridian Station — Before the First Cut</title>
+<link rel="stylesheet" href="styles.css">
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+</script>
+</head>
+<body>
+<div id="stage">
+  <canvas id="gl" aria-label="Meridian Station film viewport"></canvas>
+  <canvas id="gl2" aria-label="Last Shift comparison viewport" hidden></canvas>
+
+  <!-- Quiet Play affordance on load -->
+  <button id="playBig" class="play-big" aria-label="Play the film">▶</button>
+
+  <!-- Transport: hidden during unbroken playback, revealed on intent -->
+  <div id="transport" class="transport" hidden>
+    <button id="btnPlay" aria-label="Play or pause">⏸</button>
+    <button id="btnStepBack" aria-label="Step back 1 second">⏮</button>
+    <button id="btnStepFwd" aria-label="Step forward 1 second">⏭</button>
+    <input id="scrub" type="range" min="0" max="90" step="0.1" value="0" aria-label="Scrub film time">
+    <span id="clock" aria-live="off">0:00 / 1:30</span>
+    <select id="chapters" aria-label="Chapters"></select>
+    <button id="btnReplay" aria-label="Replay">↺</button>
+    <button id="btnReduced" aria-pressed="false" aria-label="Reduced effects">Reduced</button>
+    <button id="btnAmbience" aria-pressed="false" aria-label="Machinery ambience (off by default)">Ambience</button>
+    <button id="btnInspect" aria-label="Open The Last Shift inspection">Inspect</button>
+    <button id="btnVariant" aria-label="Toggle recurrence variant">Recurrence: Audience-first</button>
+  </div>
+
+  <!-- Last Shift panel -->
+  <section id="inspect" class="inspect" hidden aria-label="The Last Shift inspection">
+    <header>
+      <strong>The Last Shift</strong>
+      <span>Same world state · matched camera + IDs · labels optional</span>
+      <button id="btnCloseInspect" aria-label="Close inspection">✕</button>
+    </header>
+    <div class="inspect-controls">
+      <label>Comparison
+        <select id="cmpSelect">
+          <option value="0">Docking / cart / seal + bypass</option>
+          <option value="1">Hydroponics rack — irrigation stopped</option>
+          <option value="2">Chapel — intact / recurrence / ruin</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="chkLabels"> Labels</label>
+      <label><input type="checkbox" id="chkNarrow"> Narrow-screen toggle</label>
+      <button id="btnOrbitCut" aria-pressed="false">Orbit: Intact</button>
+      <span id="orbitHint">Drag the view (or ←/→) for 120°+ proof orbit</span>
+    </div>
+    <div id="cmpWrap" class="cmp-wrap">
+      <figure><canvas id="cmpL" width="640" height="360"></canvas><figcaption id="capL"></figcaption></figure>
+      <figure><canvas id="cmpR" width="640" height="360"></canvas><figcaption id="capR"></figcaption></figure>
+    </div>
+    <div id="orbitWrap" class="orbit-wrap">
+      <canvas id="orbitCv" width="960" height="540" tabindex="0" aria-label="Proof orbit view. Drag or use arrow keys."></canvas>
+      <figcaption id="capOrbit"></figcaption>
+    </div>
+  </section>
+
+  <div id="labels" class="labels" hidden></div>
+  <div id="err" class="err" hidden></div>
+</div>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
