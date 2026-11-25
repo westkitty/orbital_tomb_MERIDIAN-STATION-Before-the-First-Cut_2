@@ -14,4 +14,17 @@ jobs:
           npm init -y >/dev/null 2>&1
           npm i -D playwright-core >/dev/null 2>&1 || true
           npx playwright install chromium --with-deps 2>/dev/null || npx playwright install chromium
-          node scripts/smoke.mjs
+          mkdir -p artifacts
+          node scripts/smoke.mjs 2>&1 | tee artifacts/smoke.log; exit ${PIPESTATUS[0]}
+      - name: Upload motion proof artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: meridian-motion-proof
+          path: |
+            artifacts/smoke.log
+            artifacts/clip-a-first-cut.webm
+            artifacts/clip-b-finale.webm
+            artifacts/hand-contact.png
+            docs/smoke-desktop.png
+            docs/smoke-phone.png
