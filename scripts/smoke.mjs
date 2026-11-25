@@ -74,6 +74,7 @@ assert.ok(s38.sealClosed > 0.9, 'Seal must be closed at 38s');
 assert.ok(s38.bypassOpen > 0.6, 'Bypass must be open at 38s');
 
 // Inspect round-trip preserves playhead
+await page.mouse.move(100, 100);
 await page.click('#btnInspect');
 await page.waitForTimeout(400);
 assert.equal(await page.isHidden('#inspect'), false, 'Inspect panel must open');
@@ -84,11 +85,12 @@ const tAfterInspect = await page.evaluate(() => window.__meridian.filmTime);
 assert.ok(Math.abs(tAfterInspect - 38) < 0.2, 'Inspect must return without losing playhead');
 
 // Replay resets to 0
+await page.mouse.move(100, 100);
 await page.click('#btnReplay');
 await page.waitForTimeout(200);
 const tReplay = await page.evaluate(() => window.__meridian.filmTime);
 assert.ok(tReplay < 1.0, `Replay must reset filmTime near 0 (got ${tReplay})`);
-await page.keyboard.press('Space');
+await page.click('#btnPlay');
 
 // Hand contact close frame at 1:21 (81s)
 await page.evaluate(() => {
