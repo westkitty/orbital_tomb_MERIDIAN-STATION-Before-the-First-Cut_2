@@ -401,11 +401,11 @@ export function buildWorld(renderer) {
       segment02.visible = true;
       segment02.position.set(30 - Math.sin(b * 2) * 48 * b, 18 + b * 18, 30 + Math.cos(b * 2) * 48 * b);
       segment02.rotation.set(0.4 * b, b * 0.6, 0);
-      sailR.position.set(30 + Math.cos(b * 2 + 2) * 45 * b, 6 + b * 32, 30 + Math.sin(b * 2 + 2) * 45 * b);
-      sailR.rotation.set(0.2 * b, b * 0.9, 0.4 * b);
+      sails.position.set(30 + Math.cos(b * 2 + 2) * 45 * b, 6 + b * 32, 30 + Math.sin(b * 2 + 2) * 45 * b);
+      sails.rotation.set(0.2 * b, b * 0.9, 0.4 * b);
     } else {
       segment02.position.set(0, 0, 0); segment02.rotation.set(0, 0, 0);
-      sailR.position.set(0, -90, 26); sailR.rotation.set(0, 0, 0);
+      sails.position.set(0, 0, 0); sails.rotation.set(0, 0, 0);
     }
     // Hands: visible from 80 (pressed to pane, unmoved through return)
     hands.visible = t >= 80;
