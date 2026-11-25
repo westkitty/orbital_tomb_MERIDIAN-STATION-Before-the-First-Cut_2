@@ -47,7 +47,7 @@ assert.equal(playDisabled, false, 'Play button must be enabled after first frame
 
 // Play advances clock
 await page.click('#playBig');
-await page.waitForTimeout(1200);
+await page.waitForFunction(() => window.__meridian.filmTime > 0.3, { timeout: 10000 });
 const t1 = await page.evaluate(() => window.__meridian.filmTime);
 assert.ok(t1 > 0.3, `Play must advance filmTime (got ${t1})`);
 
