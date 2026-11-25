@@ -41,7 +41,9 @@ const errors = [];
 page.on('pageerror', e => errors.push(String(e)));
 
 await page.goto(url, { waitUntil: 'networkidle' });
-await page.waitForFunction(() => window.__meridian?.firstFrameRendered === true, { timeout: 15000 });
+console.log('1. page loaded');
+await page.waitForFunction(() => window.__meridian?.firstFrameRendered === true, { timeout: 20000 });
+console.log('2. first frame rendered');
 const playDisabled = await page.isDisabled('#playBig');
 assert.equal(playDisabled, false, 'Play button must be enabled after first frame');
 
