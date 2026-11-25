@@ -103,10 +103,26 @@ export function buildWorld(renderer) {
     for (let y = 0; y < 256; y++) { ctx.fillStyle = bands[Math.floor(y / 42) % bands.length]; ctx.fillRect(0, y, 512, 1); }
     const tex = new THREE.CanvasTexture(cvs);
     const sphere = mesh(new THREE.SphereGeometry(900, 48, 32), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.95, metalness: 0 }), 'planet.virgil');
-    virgil.add(sphere);
+    const limb = new THREE.Mesh(new THREE.SphereGeometry(935, 48, 32), new THREE.MeshBasicMaterial({ color: 0x5c94c2, transparent: true, opacity: 0.18, side: THREE.BackSide }));
+    virgil.add(sphere, limb);
   }
   virgil.position.set(-1400, -350, -1600);
   scene.add(virgil);
+
+  // Two-layer starfield for orbital parallax
+  const starGeo = new THREE.BufferGeometry();
+  const starPos = new Float32Array(900 * 3);
+  for (let i = 0; i < 900; i++) {
+    const r = 2400 + (i % 3) * 800;
+    const th = (i * 2.39996) % (Math.PI * 2);
+    const ph = Math.acos(1 - 2 * ((i + 0.5) / 900));
+    starPos[i * 3] = r * Math.sin(ph) * Math.cos(th);
+    starPos[i * 3 + 1] = r * Math.cos(ph);
+    starPos[i * 3 + 2] = r * Math.sin(ph) * Math.sin(th);
+  }
+  starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+  const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xd8e8f8, size: 3.2, sizeAttenuation: true, transparent: true, opacity: 0.75 }));
+  scene.add(stars);
 
   // --- Exterior station: ring 8.7km OD, spire +10.4km, spine -6.9km (scaled: 1u ≈ 36m) ---
   const station = new THREE.Group(); station.userData.id = 'structure.station';
@@ -228,7 +244,7 @@ export function buildWorld(renderer) {
   const chapel = new THREE.Group(); chapel.userData.id = 'structure.chapel'; chapel.position.set(0, 0, -14); interior.add(chapel);
   const chapelFloor = mesh(box(16, 0.4, 8), M.grate, 'structure.chapel.floor', 0, 0, 0); chapel.add(chapelFloor);
   const console_ = mesh(box(10, 1.1, 1.2), M.hullDark, 'structure.chapel.console', 0, 0.75, 2.5); chapel.add(console_);
-  const consoleGlow = mesh(box(9.4, 0.5, 0.1), M.cool, 'structure.chapel.console.glow', 0, 1.35, 2.5); chapel.add(consoleGlow);
+  const consoleGlow = mesh(box(9.4, 0.5, 0.1), M.consoleScreen, 'structure.chapel.console.glow', 0, 1.35, 2.5); chapel.add(consoleGlow);
   const panes = [];
   for (let b = 0; b < 3; b++) {
     const ang = (b - 1) * 0.38; // canted
