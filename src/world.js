@@ -437,7 +437,11 @@ export function buildWorld(renderer) {
     cryoPod.position.y = 40 + (1 - rel) * 30; kira.position.y = 40 + (1 - rel) * 30;
     jalen.position.y = 62 + (1 - rel) * 20; safi.position.y = -38 + (1 - rel) * 20;
     // Tiger + bloom finale
+    stars.visible = !reduced;
     tiger.visible = s.tigerVisible > 0;
+    if (tiger.visible) {
+      M.cyan.emissiveIntensity = 2.2 + Math.sin(t * 2.5) * 0.45;
+    }
     if (s.bloom > 0.02) {
       const b = s.bloom;
       // Move the actual persistent detached objects into the bloom around Tiger (30, 0, 30)
