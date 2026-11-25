@@ -6,7 +6,7 @@
 <title>Meridian Station — Before the First Cut</title>
 <link rel="stylesheet" href="styles.css">
 <script type="importmap">
-{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+{ "imports": { "three": "./vendor/three/three.module.js" } }
 </script>
 </head>
 <body>
@@ -14,8 +14,8 @@
   <canvas id="gl" aria-label="Meridian Station film viewport"></canvas>
   <canvas id="gl2" aria-label="Last Shift comparison viewport" hidden></canvas>
 
-  <!-- Quiet Play affordance on load -->
-  <button id="playBig" class="play-big" aria-label="Play the film">▶</button>
+  <!-- Quiet Play affordance on load (enabled after first frame renders) -->
+  <button id="playBig" class="play-big" aria-label="Play the film" disabled aria-disabled="true">▶</button>
 
   <!-- Transport: hidden during unbroken playback, revealed on intent -->
   <div id="transport" class="transport" hidden>
@@ -63,7 +63,7 @@
   </section>
 
   <div id="labels" class="labels" hidden></div>
-  <div id="err" class="err" hidden></div>
+  <div id="err" class="err" role="alert" hidden></div>
 </div>
 <script type="module" src="src/main.js"></script>
 </body>

@@ -213,13 +213,43 @@ export function buildWorld(renderer) {
     const frameB = mesh(box(4.6, 0.4, 0.4), M.hullDark, 'structure.chapel.frame', 0, 0.7, 0); bay.add(frameB);
     chapel.add(bay);
   }
-  // Survivor hands pressed to pane (finale) — same pane, same placement
+  // Survivor anatomy pressed to pane (finale) — modeled hands, planted pose, sculpted head
   const hands = new THREE.Group(); hands.userData.id = 'crew.survivor.hands';
-  const handL = mesh(box(0.28, 0.42, 0.08), M.skin, 'crew.survivor.hand_l', -0.55, 2.15, -3.45);
-  const handR = mesh(box(0.28, 0.42, 0.08), M.skin, 'crew.survivor.hand_r', 0.55, 2.15, -3.45);
+  function makeHand(id, side) {
+    const h = new THREE.Group(); h.userData.id = id;
+    // Palm flush against pane at z = 0 in local space (placed at z = -3.45)
+    h.add(mesh(box(0.16, 0.20, 0.04), M.skin, id + '.palm', 0, 0, 0));
+    for (let f = 0; f < 4; f++) {
+      const fx = (f - 1.5) * 0.042 * side;
+      h.add(mesh(cyl(0.016, 0.014, 0.14, 6), M.skin, `${id}.f${f}`, fx, 0.16, 0));
+    }
+    const thumb = mesh(cyl(0.018, 0.015, 0.11, 6), M.skin, id + '.thumb', -0.095 * side, 0.03, 0);
+    thumb.rotation.z = 0.55 * side;
+    h.add(thumb);
+    return h;
+  }
+  const handL = makeHand('crew.survivor.hand_l', 1); handL.position.set(-0.48, 2.15, -3.45);
+  const handR = makeHand('crew.survivor.hand_r', -1); handR.position.set(0.48, 2.15, -3.45);
   hands.add(handL, handR); chapel.add(hands);
-  const survivorHead = mesh(new THREE.SphereGeometry(0.32, 12, 10), M.skin, 'crew.survivor', 0, 2.6, -2.6); chapel.add(survivorHead);
-  const survivorBody = mesh(cyl(0.34, 0.42, 1.1, 10), M.suit, 'crew.survivor.body', 0, 1.7, -2.4); chapel.add(survivorBody);
+
+  const survivorGroup = new THREE.Group(); survivorGroup.userData.id = 'crew.survivor';
+  // Sculpted head: cranium, jaw, brow, neck, hair
+  const sCranium = mesh(new THREE.SphereGeometry(0.22, 14, 12), M.skin, 'crew.survivor.cranium', 0, 2.58, -2.85);
+  sCranium.scale.set(0.9, 1.08, 0.98); survivorGroup.add(sCranium);
+  const sJaw = mesh(box(0.22, 0.16, 0.22), M.skin, 'crew.survivor.jaw', 0, 2.43, -2.90); survivorGroup.add(sJaw);
+  const sBrow = mesh(box(0.24, 0.05, 0.08), M.skin, 'crew.survivor.brow', 0, 2.60, -3.04); survivorGroup.add(sBrow);
+  const sHair = mesh(new THREE.SphereGeometry(0.23, 12, 10, 0, Math.PI * 2, 0, 1.55), new THREE.MeshStandardMaterial({ color: 0x1c1917, roughness: 0.9 }), 'crew.survivor.hair', 0, 2.63, -2.83);
+  survivorGroup.add(sHair);
+  survivorGroup.add(mesh(cyl(0.08, 0.10, 0.22, 8), M.skin, 'crew.survivor.neck', 0, 2.30, -2.82));
+  // Torso, shoulders, planted legs, and forearms reaching to wrists
+  survivorGroup.add(mesh(cyl(0.28, 0.34, 0.95, 10), M.suit, 'crew.survivor.body', 0, 1.75, -2.75));
+  survivorGroup.add(mesh(cyl(0.11, 0.09, 0.85, 8), M.suit, 'crew.survivor.leg_l', -0.16, 0.85, -2.68));
+  survivorGroup.add(mesh(cyl(0.11, 0.09, 0.85, 8), M.suit, 'crew.survivor.leg_r', 0.16, 0.85, -2.68));
+  const armReachL = mesh(cyl(0.075, 0.065, 0.78, 8), M.suit, 'crew.survivor.arm_l', -0.40, 2.08, -3.10);
+  armReachL.rotation.x = 1.35; armReachL.rotation.z = -0.18; survivorGroup.add(armReachL);
+  const armReachR = mesh(cyl(0.075, 0.065, 0.78, 8), M.suit, 'crew.survivor.arm_r', 0.40, 2.08, -3.10);
+  armReachR.rotation.x = 1.35; armReachR.rotation.z = 0.18; survivorGroup.add(armReachR);
+  chapel.add(survivorGroup);
 
   // --- Crew figures (distinct readable silhouettes, no labels) ---
   function person(id, suitMat, hairMat, hairStyle) {
@@ -297,12 +327,7 @@ export function buildWorld(renderer) {
   }
   tiger.position.set(30, 0, 30); tiger.visible = false; scene.add(tiger);
 
-  // Bloom petals: ≥3 identifiable earlier components (arm01, segment02, sail) arranged around Tiger
-  const petals = new THREE.Group(); petals.userData.id = 'structure.monument.petals'; scene.add(petals);
-  const petalArm = mesh(box(34, 5, 6), M.hull, 'structure.monument.petal.arm01');
-  const petalSeg = mesh(new THREE.TorusGeometry(30, 8, 8, 12, 0.6), M.panel, 'structure.monument.petal.segment02');
-  const petalSail = mesh(box(46, 0.6, 22), new THREE.MeshStandardMaterial({ color: 0xb8c4cc, metalness: 0.5, roughness: 0.4, side: THREE.DoubleSide }), 'structure.monument.petal.sail');
-  petals.add(petalArm, petalSeg, petalSail); petals.visible = false; scene.add(petals);
+  // No duplicate petal meshes: Month 6 bloom rearranges the actual persistent detached objects (arm01, segment02, sailR) around Tiger.
 
   // Vent particles (M3) + debris field (M5/M6)
   const ventPts = (() => {
@@ -314,8 +339,8 @@ export function buildWorld(renderer) {
   })();
 
   const refs = { scene, sun, chapelWarm, hydroLight, corridorLight, virgil, station, arm01, arms, segment02, craft,
-    interior, seal, bypassDoor, threshold, hydro, irrPipe, farDoor, droplets, chapel, hands, survivorHead, survivorBody,
-    mara, rin, wrench, panel, cart, caster, hesh, kira, jalen, safi, cryoPod, tiger, petals, petalArm, petalSeg, petalSail, ventPts, panes };
+    interior, seal, bypassDoor, threshold, hydro, irrPipe, farDoor, droplets, chapel, hands, survivorGroup,
+    mara, rin, wrench, panel, cart, caster, hesh, kira, jalen, safi, cryoPod, tiger, ventPts, panes };
 
   function applyState(t, variant = 'audience', reduced = false) {
     const s = stateAt(t, variant);
@@ -350,7 +375,7 @@ export function buildWorld(renderer) {
       rin.position.set(laneX(k) + 1.2, 0.2 + Math.cos(k * 9) * 0.15, -1.4);
       mara.rotation.y = rin.rotation.y = Math.PI / 2;
       // Survivor already looking on second pass
-      survivorHead.rotation.y = s.maraPass2 > 0.02 ? 0.6 : 0;
+      survivorGroup.rotation.y = s.maraPass2 > 0.02 ? 0.15 : 0;
     } else if (t < 30) {
       mara.position.set(-2 + Math.sin(t * 0.4) * 0.4, 0.2, 1); rin.position.set(1.5 + Math.cos(t * 0.5) * 0.3, 0.2, 1.5);
       mara.rotation.y = rin.rotation.y = 0;
@@ -368,17 +393,23 @@ export function buildWorld(renderer) {
     jalen.position.y = 62 + (1 - rel) * 20; safi.position.y = -38 + (1 - rel) * 20;
     // Tiger + bloom finale
     tiger.visible = s.tigerVisible > 0;
-    petals.visible = s.bloom > 0.02;
-    if (petals.visible) {
+    if (s.bloom > 0.02) {
       const b = s.bloom;
-      petalArm.position.set(30 + Math.cos(b * 2) * 60 * b, 10 + b * 30, 30 + Math.sin(b * 2) * 60 * b);
-      petalSeg.position.set(30 - Math.sin(b * 2) * 55 * b, 20 + b * 20, 30 + Math.cos(b * 2) * 55 * b);
-      petalSail.position.set(30 + Math.cos(b * 2 + 2) * 50 * b, 5 + b * 40, 30 + Math.sin(b * 2 + 2) * 50 * b);
-      petals.rotation.y = b * 0.8;
+      // Move the actual persistent detached objects into the bloom around Tiger (30, 0, 30)
+      arm01.position.set(30 + Math.cos(b * 2) * 55 * b, 10 + b * 24, 30 + Math.sin(b * 2) * 55 * b);
+      arm01.rotation.set(0, b * 0.8, 0.3 * b);
+      segment02.visible = true;
+      segment02.position.set(30 - Math.sin(b * 2) * 48 * b, 18 + b * 18, 30 + Math.cos(b * 2) * 48 * b);
+      segment02.rotation.set(0.4 * b, b * 0.6, 0);
+      sailR.position.set(30 + Math.cos(b * 2 + 2) * 45 * b, 6 + b * 32, 30 + Math.sin(b * 2 + 2) * 45 * b);
+      sailR.rotation.set(0.2 * b, b * 0.9, 0.4 * b);
+    } else {
+      segment02.position.set(0, 0, 0); segment02.rotation.set(0, 0, 0);
+      sailR.position.set(0, -90, 26); sailR.rotation.set(0, 0, 0);
     }
     // Hands: visible from 80 (pressed to pane, unmoved through return)
     hands.visible = t >= 80;
-    survivorHead.position.set(0, 2.6, -2.6); survivorBody.position.set(0, 1.7, -2.4);
+    // Hands stay on the exact same pane; survivorGroup stays planted
     // Chapel light dims but last practical stays
     chapelWarm.intensity = 12 * s.chapelLight;
     hydroLight.intensity = 8 * (t < 60 ? 1 : 0.35);
