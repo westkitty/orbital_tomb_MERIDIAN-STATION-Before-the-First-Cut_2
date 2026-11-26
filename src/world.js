@@ -70,6 +70,8 @@ export function buildWorld(renderer) {
   const sun = new THREE.DirectionalLight(0xfff2dd, 3.2);
   sun.position.set(400, 300, 200); sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.bias = -0.0005;
+  sun.shadow.normalBias = 0.02;
   sun.shadow.camera.left = -200; sun.shadow.camera.right = 200;
   sun.shadow.camera.top = 200; sun.shadow.camera.bottom = -200;
   scene.add(sun);
@@ -206,7 +208,11 @@ export function buildWorld(renderer) {
 
   // Transfer craft (small, approaches arm01 socket)
   const craft = new THREE.Group(); craft.userData.id = 'craft.transfer';
-  craft.add(mesh(box(4, 2, 6), M.panel, 'craft.transfer'), mesh(cyl(1, 1.4, 2, 8), M.hullDark, 'craft.transfer.engine', 0, 0, -4));
+  craft.add(
+    mesh(box(4, 2, 6), M.panel, 'craft.transfer'),
+    mesh(cyl(1, 1.4, 2, 8), M.hullDark, 'craft.transfer.engine', 0, 0, -4),
+    mesh(box(0.4, 0.4, 0.4), M.warm, 'craft.transfer.beacon', 0, 1.15, 2.5)
+  );
   craft.children[1].rotation.x = Math.PI / 2;
   scene.add(craft);
 
